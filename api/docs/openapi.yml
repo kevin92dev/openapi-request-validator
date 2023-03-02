@@ -1,0 +1,90 @@
+openapi: 3.0.3
+info:
+  title: Example request validator
+  version: 3.0.0
+paths:
+  /my-url:
+    get:
+      tags:
+        - My URL
+      summary: Example of OpenAPI request validation
+      description: Example of OpenAPI request validation
+      operationId: handle
+      parameters:
+        - name: limit
+          in: query
+          required: false
+          schema:
+            $ref: '#/components/schemas/limit'
+        - name: page
+          in: query
+          required: false
+          schema:
+            $ref: '#/components/schemas/page'
+      responses:
+        '200':
+          description: List of articles
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ArticlesResponse'
+        '422':
+          description: "Unprocessable Entity: We receive a syntactically correct request, but the request cannot be processed due to some issues in the data contained."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                "Limit parameter bigger than expected":
+                  summary: "Limit parameter bigger than expected"
+                  value:
+                    message: Unprocessable entity
+                    details: ["error": "parameter 'limit' in query has an error: number must be at most 100"]
+                "Page parameter smaller than expected":
+                  summary: "Page parameter smaller than expected"
+                  value:
+                    message: Unprocessable entity
+                    details: ["error": "parameter 'page' in query has an error: minimum integer is 1"]
+
+components:
+  schemas:
+    limit:
+      description: Limit filter
+      type: integer
+      minimum: 1
+      maximum: 100
+      example: 100
+    page:
+      description: Page filter
+      type: integer
+      minimum: 1
+      maximum: 1000
+      example: 1
+
+    Article:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1234
+
+    ArticlesResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Article'
+
+    ErrorResponse:
+      description: Error response
+      type: object
+      properties:
+        message:
+          description: Error message
+          type: string
+        details:
+          description: Describe the detail of error
+          type: array
+          items:
+            type: string
