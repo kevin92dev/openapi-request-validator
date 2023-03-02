@@ -37,7 +37,6 @@ func ValidateRequest() gin.HandlerFunc {
 				"details": gin.H{
 					"error": getErrorMessage(err),
 				},
-				"code": "1390000001",
 			})
 		}
 	}
