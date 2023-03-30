@@ -12,7 +12,16 @@ import (
 func ValidateRequest() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		loader := &openapi3.Loader{Context: ctx, IsExternalRefsAllowed: true}
-		doc, _ := loader.LoadFromFile("api/docs/openapi.yml")
+		doc, validationError := loader.LoadFromData([]byte(os.Getenv("OPENAPI_DOCS")))
+		
+		if nil != validationError {
+			ctx.AbortWithStatusJSON(http.StatusUnprocessableEntity, gin.H{
+				"message": http.StatusText(http.StatusUnprocessableEntity),
+				"details": gin.H{
+					"error": validationError.Error(),
+				},
+			})
+		}
 
 		// Validate document
 		_ = doc.Validate(ctx)
